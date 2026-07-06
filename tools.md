@@ -17,7 +17,7 @@ This document describes every tool used in Go service projects, how it is config
 - Task definitions (build, lint, test, generate, migrate, etc.) via the `[tasks]` section.
 - Environment variables via the `[env]` section.
 
-**Usage pattern:** All tool invocations are wrapped in mise tasks so commands are simplified and reproducible. Example: instead of running `sqlc generate` directly, a mise task `generate:sqlc` wraps it.
+**Usage pattern:** All tool invocations are wrapped in mise tasks so commands are simplified and reproducible. Example: instead of running `sqlc generate` directly, a mise task `gen:sqlc` wraps it.
 
 ---
 
@@ -56,8 +56,6 @@ This document describes every tool used in Go service projects, how it is config
 ## sqlc
 
 **Purpose:** Generate type-safe Go data access code from SQL query files. Writes raw SQL, gets generated structs and query functions.
-
-**Repository:** https://github.com/sqlc-dev/sqlc
 
 **Input:** SQL query files (`.sql`) located in a `queries/` subdirectory under store package (e.g., `internal/infra/storage/postgres/queries/`).
 
@@ -145,6 +143,49 @@ type OrderConverter interface {
 
 ---
 
+## go-enum
+
+**Purpose:** Generate type-safe enum implementations (constants with iota, String/Parse methods, text/JSON marshaling, SQL scanning) from annotated Go type declarations.
+
+**Input:** Go type declarations with `// ENUM(...)` or `/* ENUM(...) */` comments.
+
+**Output:** Generated `<source>_enum.go` files alongside the source file (e.g., `status.go` → `status_enum.go`).
+
+**Usage pattern:** Declare a type and annotate it with an `ENUM(...)` comment listing the values. go-enum generates the const block (with iota), `String()`, `Parse<Type>()`, and optionally marshal/unmarshal, SQL, and other methods. You do NOT write the constants yourself.
+
+**Example:**
+```go
+// ENUM(pending, approved, rejected)
+type Status int
+```
+
+go-enum generates `StatusPending`, `StatusApproved`, `StatusRejected` constants, `String()`, `ParseStatus()`, and text marshal/unmarshal methods.
+
+**String-typed enums** are also supported — the generated constants use string values instead of iota:
+```go
+// ENUM(pending, approved, rejected)
+type Status string
+```
+  
+**Invocation:** Via `//go:generate` directives placed in the source file. A mise task runs `go generate ./internal/core/...` to regenerate all enums.
+
+**Example directive:**
+```go
+//go:generate go-enum --marshal --names --nocase --ptr -f $GOFILE
+```
+
+**Key flags:**
+- `--marshal` — adds text (and JSON) marshaling functions.
+- `--sql` — adds SQL database scan and value functions.
+- `--names` — generates `Names() []string` and includes possible values in parse errors.
+- `--values` — generates `Values() []<Type>`.
+- `--nocase` — case-insensitive parsing.
+- `--ptr` — adds a `Ptr()` method to get a pointer from const values.
+- `--noprefix` — removes the type name prefix from generated constants.
+- `-f $GOFILE` — the file to process (uses `$GOFILE` env var set by `go generate`).
+
+---
+
 ## Docker
 
 **Purpose:** Containerization for the application binary and local development dependencies.
@@ -163,12 +204,13 @@ All tools are invoked through mise tasks defined in `mise.toml`. The standard ta
 
 | Task | Command | Purpose |
 |------|---------|---------|
-| `generate:oapi` | `ogen -target internal/gen/oapi api/openapi/<spec>.yaml` | Generate HTTP stubs from OpenAPI |
-| `generate:proto` | `buf generate` | Generate protobuf/gRPC code |
-| `generate:sql` | `sqlc generate` | Generate data access code |
-| `generate:mocks` | `go generate ./...` | Generate test mocks |
-| `generate:wire` | `wire ./cmd/serverd/...` | Generate dependency wiring |
-| `generate:converters` | `goverter gen ./...` | Generate struct converters |
+| `gen:oapi` | `ogen -target internal/gen/oapi api/openapi/<spec>.yaml` | Generate HTTP stubs from OpenAPI |
+| `gen:proto` | `buf generate` | Generate protobuf/gRPC code |
+| `gen:sqlc` | `sqlc generate` | Generate data access code |
+| `gen:mocks` | `go generate ./...` | Generate test mocks |
+| `gen:wire` | `wire ./cmd/serverd/...` | Generate dependency wiring |
+| `gen:conv` | `goverter gen ./...` | Generate struct converters |
+| `gen:enum` | `go generate ./...` | Generate enum implementations |
 | `lint` | `golangci-lint run ./...` | Run linters |
 | `test` | `go test ./...` | Run tests |
 | `migrate:up` | `migrate -path migrations -database $DATABASE_URL up` | Apply migrations |
