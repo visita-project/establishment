@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: {{SERVICE_TITLE}} API
+  version: 0.1.0
+  description: Minimal OpenAPI spec. Expand with your endpoints.
+paths:
+  /healthz:
+    get:
+      operationId: healthz
+      summary: Liveness probe
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+components:
+  schemas:
+    Health:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: ok

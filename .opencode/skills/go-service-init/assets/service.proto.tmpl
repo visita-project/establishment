@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package {{SERVICE_NAME_LOWER}}.v1;
+
+option go_package = "github.com/{{MODULE_PATH}}/gen/proto/{{SERVICE_NAME_LOWER}}/v1;{{SERVICE_NAME_LOWER}}v1";
+
+// Minimal service definition. Expand with your RPCs.
+service {{SERVICE_TITLE_CAMEL}}Service {
+  rpc Healthz(HealthzRequest) returns (HealthzResponse);
+}
+
+message HealthzRequest {}
+
+message HealthzResponse {
+  string status = 1;
+}

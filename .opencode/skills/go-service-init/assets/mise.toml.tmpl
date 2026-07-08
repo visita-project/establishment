@@ -1,0 +1,20 @@
+[env]
+# Application environment variables.
+# Local-only secrets (DB credentials, API keys) go in mise.local.toml (gitignored).
+
+[tools]
+go = "{{GO_VERSION}}"
+golangci-lint = "latest"
+
+# --- build / lint / test ---
+
+[tasks."build"]
+run = "go build ./cmd/serverd/"
+
+[tasks."lint"]
+run = "golangci-lint run ./..."
+
+[tasks."test"]
+run = "go test ./..."
+
+# --- generation tasks (appended per selected tool) ---
