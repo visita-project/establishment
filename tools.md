@@ -27,7 +27,7 @@ This document describes every tool used in Go service projects, how it is config
 
 **Input:** OpenAPI spec files located in `api/openapi/`.
 
-**Output:** Generated Go code goes to `internal/gen/oapi/`.
+**Output:** Generated Go code goes to `gen/oapi/`.
 
 **Configuration file:** `.ogen.yml` at project root. Defines input spec path, output target directory, and generation options.
 
@@ -41,7 +41,7 @@ This document describes every tool used in Go service projects, how it is config
 
 **Input:** `.proto` files located in `api/proto/`.
 
-**Output:** Generated Go protobuf and gRPC code goes to `internal/gen/proto/`.
+**Output:** Generated Go protobuf and gRPC code goes to `gen/proto/`.
 
 **Configuration files:**
 - `buf.yaml` — module configuration (module name, dependencies, lint/breaking rules).
@@ -59,13 +59,13 @@ This document describes every tool used in Go service projects, how it is config
 
 **Input:** SQL query files (`.sql`) located in a `queries/` subdirectory under store package (e.g., `internal/infra/storage/postgres/queries/`).
 
-**Output:** Generated Go code goes to `internal/gen/sqlc/`.
+**Output:** Generated Go code goes to `gen/sqlc/`.
 
 **Configuration file:** `sqlc.yaml` at project root. Defines:
 - Database engine (postgresql).
 - Schema path (migrations directory).
 - Query file paths.
-- Output package and directory (`internal/gen/sqlc/`).
+- Output package and directory (`gen/sqlc/`).
 - Go package name and pgx driver override.
 
 ---
@@ -200,11 +200,11 @@ type Status string
 
 ## Tool Invocation Summary
 
-All tools are invoked through mise tasks defined in `mise.toml`. The standard task set:
+All tools are invoked through mise tasks defined in `mise.toml`. The standard task set:aa
 
 | Task | Command | Purpose |
 |------|---------|---------|
-| `gen:oapi` | `ogen -target internal/gen/oapi api/openapi/<spec>.yaml` | Generate HTTP stubs from OpenAPI |
+| `gen:oapi` | `ogen -target gen/oapi api/openapi/<spec>.yaml` | Generate HTTP stubs from OpenAPI |
 | `gen:proto` | `buf generate` | Generate protobuf/gRPC code |
 | `gen:sqlc` | `sqlc generate` | Generate data access code |
 | `gen:mocks` | `go generate ./...` | Generate test mocks |
@@ -226,11 +226,11 @@ api/
 ├── openapi/          # OpenAPI spec files (ogen input)
 └── proto/            # Protobuf files (buf input)
 migrations/           # SQL migration files (golang-migrate)
+gen/
+├── oapi/             # ogen generated code
+├── proto/            # buf generated protobuf/gRPC code
+└── sqlc/             # sqlc generated data access code
 internal/
-├── gen/
-│   ├── oapi/         # ogen generated code
-│   ├── proto/        # buf generated protobuf/gRPC code
-│   └── sqlc/         # sqlc generated data access code
 ├── infra/storage/postgres/queries/  # .sql query files (sqlc input)
 buf.yaml              # buf module config
 buf.gen.yaml          # buf generation config

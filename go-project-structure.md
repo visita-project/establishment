@@ -10,6 +10,14 @@ The following tree illustrates an order service project applying all concepts de
 cmd/
 ├── serverd/
 │    └── main.go
+gen/
+├── oapi/
+│    └── order_ogen_gen.go
+└── proto/
+    └── order/
+        └── v1/
+            ├── order.pb.go
+            └── order_grpc.pb.go
 internal/
 ├── config/
 │   └── config.go
@@ -49,14 +57,6 @@ internal/
 │       ├── jwt.go
 │       ├── verifier.go
 │       └── issuer.go
-├── gen/
-│   ├── oapi/
-│   │   └── order_ogen_gen.go
-│   └── proto/
-│       └── order/
-│           └── v1/
-│               ├── order.pb.go
-│               └── order_grpc.pb.go
 ├── transport/
 │   ├── http/
 │   │   ├── middleware/
@@ -112,7 +112,7 @@ All application code lives under `internal/` to prevent external imports. Entry 
 | — Storage | `internal/infra/storage/` | Persistence implementations |
 | — External API | `internal/infra/extapi/` | Outbound HTTP/gRPC client integrations |
 | Platform | `internal/platform/` | Cross-cutting infrastructure (logging, auth, etc.) |
-| Generated | `internal/gen/` | Auto-generated code (OpenAPI, protobuf, sqlc, etc.) |
+| Generated | `gen/` | Auto-generated code (OpenAPI, protobuf, sqlc, etc.) |
 
 ## Naming Conventions
 
@@ -228,7 +228,7 @@ Each client implements an interface defined in the app layer, following the same
 
 ---
 
-## `internal/gen/` — Generated Code
+## `gen/` — Generated Code
 
 Contains **auto-generated code** that MUST NOT be manually edited.
 
