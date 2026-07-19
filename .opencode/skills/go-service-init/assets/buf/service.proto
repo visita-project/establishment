@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package <pkg>.v1;
+
+option go_package = "<module>/gen/proto/<pkg>/v1";
+
+// Define RPCs here (API-first), then run `mise run gen:proto`.
+service <Pkg>Service {
+}
